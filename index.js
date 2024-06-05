@@ -10,7 +10,7 @@ app.use(cors())
 app.use(express.json())
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_Name}:${process.env.DB_pass}@cluster0.uqcmivv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -28,9 +28,32 @@ async function run() {
     // await client.connect();
     
     const userCollection = client.db("MedicineDB").collection("users");
-    app.get('/users',async(req,res)=>{
-      const result = userCollection.find().toArray()
+    const categoryCollection = client.db("MedicineDB").collection("category");
+   app.get('/categoryUpdate/:id',async(req,res)=>{
+    const Id=req.params.id
+    const query={_id : new ObjectId(Id)}
+    const result=await categoryCollection.findOne(query)
+    res.send(result)
+   })
+    app.get('/categoryAdmin',async(req,res)=>{
+      const result=await categoryCollection.find().toArray()
+      res.send(result)
+    })
+
+    app.get('/usersForAdmin',async(req,res)=>{
+      const result=await userCollection.find().toArray()
       console.log(result)
+      res.send(result)
+    })
+    app.get('/users/:email',async(req,res)=>{
+      const email=req.params.email
+      const query={email : email}
+      const result = await userCollection.findOne(query)
+      res.send(result)
+    })
+    app.post('/addCategory',async(req,res)=>{
+      const data=req.body
+      const result=await categoryCollection.insertOne(data)
       res.send(result)
     })
     app.post('/user',async(req,res)=>{
@@ -44,6 +67,26 @@ async function run() {
       const userData= await userCollection.insertOne(user)
       console.log(userData)
       res.send(userData)
+    })
+    app.put('/updateCategory/:id',async(req,res)=>{
+      const data=req.body
+      const Id=req.params.id
+      const query={_id : new ObjectId (Id)}
+      const options = { upsert: true }
+      const updateDoc={
+        $set:{
+          categoryName:data.categoryName,
+          photo:data.photo,
+        }
+      }
+      const result=await categoryCollection.updateOne(query,updateDoc,options)
+      res.send(result)
+    })
+    app.delete('/categoryDelete/:id',async(req,res)=>{
+      const Id=req.params.id
+      const query={_id : new ObjectId(Id)}
+      const result=await categoryCollection.deleteOne(query)
+      res.send(result)
     })
 
     // Send a ping to confirm a successful connection
