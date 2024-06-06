@@ -29,6 +29,15 @@ async function run() {
     
     const userCollection = client.db("MedicineDB").collection("users");
     const categoryCollection = client.db("MedicineDB").collection("category");
+    const medicinesCollection = client.db("MedicineDB").collection("medicines");
+    app.get('/categorySeller',async(req,res)=> {
+      const result=await categoryCollection.find().toArray()
+      res.send(result)
+    })
+    app.get('/categorySection',async(req,res)=>{
+      const result=await categoryCollection.find().toArray()
+      res.send(result)
+    })
    app.get('/categoryUpdate/:id',async(req,res)=>{
     const Id=req.params.id
     const query={_id : new ObjectId(Id)}
@@ -49,6 +58,11 @@ async function run() {
       const email=req.params.email
       const query={email : email}
       const result = await userCollection.findOne(query)
+      res.send(result)
+    })
+    app.post('/medicines',async(req,res)=>{
+      const data=req.body
+      const result=await medicinesCollection.insertOne(data)
       res.send(result)
     })
     app.post('/addCategory',async(req,res)=>{
