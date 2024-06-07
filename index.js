@@ -30,10 +30,28 @@ async function run() {
     const userCollection = client.db("MedicineDB").collection("users");
     const categoryCollection = client.db("MedicineDB").collection("category");
     const medicinesCollection = client.db("MedicineDB").collection("medicines");
+    const cartsCollection = client.db("MedicineDB").collection("carts");
 
 
+    app.get('/detailCategory/:category',async(req,res)=>{
+      const category=req.params.category
+      const query={category :category}
+      const result =await medicinesCollection.find(query).toArray()
+      res.send(result)
+    })
 
 
+  //  app.get('/medicineDetail/:id',async(req,res)=>{
+  //   const id=req.params.id
+  //   const query={_id : new ObjectId(id)}
+  //   const result=await medicinesCollection.findOne(query)
+  //   res.send(result)
+  //  })
+    app.get('/shopMedicines',async(req,res)=>{
+      const result=await medicinesCollection.find().toArray()
+      console.log(result)
+       res.send(result)
+    })
     app.get('/medicinesSeller/:email',async(req,res)=>{
       const email=req.params.email
       const query ={sellerEmail :email}
@@ -75,6 +93,12 @@ async function run() {
       const data=req.body
       const result=await medicinesCollection.insertOne(data)
       res.send(result)
+    })
+    app.post('/addCart',async(req,res)=>{
+      const cart=req.body
+       const result=await cartsCollection.insertOne(cart)
+       console.log(result)
+       res.send(result)
     })
     app.post('/addCategory',async(req,res)=>{
       const data=req.body
