@@ -30,6 +30,17 @@ async function run() {
     const userCollection = client.db("MedicineDB").collection("users");
     const categoryCollection = client.db("MedicineDB").collection("category");
     const medicinesCollection = client.db("MedicineDB").collection("medicines");
+
+
+
+
+    app.get('/medicinesSeller/:email',async(req,res)=>{
+      const email=req.params.email
+      const query ={sellerEmail :email}
+      const result=await medicinesCollection.find(query).toArray()
+      console.log(result)
+      res.send(result)
+    })
     app.get('/categorySeller',async(req,res)=> {
       const result=await categoryCollection.find().toArray()
       res.send(result)
