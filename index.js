@@ -32,7 +32,35 @@ async function run() {
     const categoryCollection = client.db("MedicineDB").collection("category");
     const medicinesCollection = client.db("MedicineDB").collection("medicines");
     const cartsCollection = client.db("MedicineDB").collection("carts");
+    const paymentsCollection = client.db("MedicineDB").collection("payments");
    
+
+
+
+
+   app.get('/salesReport',async(req,res)=>{
+       const status=req.query.status
+       const query={status : status}
+       const result=await paymentsCollection.find(query).toArray()
+    res.send(result)
+   })    
+  app.get('/userPaymentHistory/:email',async(req,res)=>{
+    const email=req.params.email
+    const query={buyerEmail :email}
+    const result=await paymentsCollection.find(query).toArray()
+    res.send(result)
+  })
+  app.get('/sellerPaymentHistory/:email',async(req,res)=>{
+    const email=req.params.email
+    const query={sellerEmail :email}
+    const result=await paymentsCollection.find(query).toArray()
+    res.send(result)
+  })
+
+  app.get('/adminPaymentHistory',async(req,res)=>{
+    const result=await paymentsCollection.find().toArray()
+    res.send(result)
+  })  
   app.get('/cart/:email',async(req,res)=>{
     const sort=req.query.sort
     const email=req.params.email
@@ -106,7 +134,17 @@ async function run() {
       res.send(result)
     })
 
-
+  app.post('/payment',async(req,res)=>{
+    const payment=req.body
+    const result=await paymentsCollection.insertOne(payment)
+   const deleteCarts={_id :
+    {
+      $in : payment.cartIds.map(id => new ObjectId(id) )
+    }
+   }
+   const updateDoc=await cartsCollection.deleteMany(deleteCarts)
+    res.send({result , updateDoc})
+  })
   //  payment method
   app.post('/create-payment-intent',async(req,res)=>{
     const {price}=req.body
@@ -167,6 +205,17 @@ async function run() {
         }
       }
       const result=await categoryCollection.updateOne(query,updateDoc,options)
+      res.send(result)
+    })
+    app.patch('/statusUpdate/:id',async(req,res)=>{
+      const Id=req.params.id
+      const query={_id : new ObjectId(Id)}
+      const updateDoc={
+        $set:{
+          status:'paid',
+        }
+      }
+      const result=await paymentsCollection.updateOne(query,updateDoc)
       res.send(result)
     })
     app.patch('/roleUpdate/:Id',async(req,res)=>{
