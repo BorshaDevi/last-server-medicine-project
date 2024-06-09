@@ -31,7 +31,22 @@ async function run() {
     const categoryCollection = client.db("MedicineDB").collection("category");
     const medicinesCollection = client.db("MedicineDB").collection("medicines");
     const cartsCollection = client.db("MedicineDB").collection("carts");
-
+   
+  app.get('/cart/:email',async(req,res)=>{
+    const sort=req.query.sort
+    const email=req.params.email
+    const query={buyerEmail :email}
+    let option={}
+    if(sort){
+      option.quantity = sort === 'asc'?1:-1
+    }
+    const result=await cartsCollection.find(query).sort(option).toArray()
+    res.send(result)
+  })
+    app.get('/discount',async(req,res)=>{
+      const result=await medicinesCollection.find().toArray()
+      res.send(result)
+    })
 
     app.get('/detailCategory/:category',async(req,res)=>{
       const category=req.params.category
@@ -41,12 +56,12 @@ async function run() {
     })
 
 
-  //  app.get('/medicineDetail/:id',async(req,res)=>{
-  //   const id=req.params.id
-  //   const query={_id : new ObjectId(id)}
-  //   const result=await medicinesCollection.findOne(query)
-  //   res.send(result)
-  //  })
+   app.get('/medicineDetail/:id',async(req,res)=>{
+    const id=req.params.id
+    const query={_id : new ObjectId(id)}
+    const result=await medicinesCollection.findOne(query)
+    res.send(result)
+   })
     app.get('/shopMedicines',async(req,res)=>{
       const result=await medicinesCollection.find().toArray()
       console.log(result)
@@ -129,6 +144,28 @@ async function run() {
         }
       }
       const result=await categoryCollection.updateOne(query,updateDoc,options)
+      res.send(result)
+    })
+    app.patch('/roleUpdate/:Id',async(req,res)=>{
+      const Id=req.params.Id
+      const {role}=req.body
+      const query={_id :new ObjectId (Id)}
+      const updateDoc={
+       $set:{
+
+         role:role,
+       }
+      
+        
+      }
+      const result=await userCollection.updateOne(query,updateDoc)
+      console.log(role)
+      res.send(result)
+    })
+    app.delete('/deleteCart/:id',async(req,res)=>{
+      const Id=req.params.id
+      const query={_id : new ObjectId(Id)}
+      const result=await cartsCollection.deleteOne(query)
       res.send(result)
     })
     app.delete('/categoryDelete/:id',async(req,res)=>{
