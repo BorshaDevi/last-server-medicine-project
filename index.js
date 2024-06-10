@@ -79,7 +79,14 @@ async function run() {
     next()
    }
 
-
+    // app.get('/adminRevenue',verifyToken,verifyAdmin,async(req,res)=>{
+    //   const paid=await paymentsCollection.find().toArray()
+    //   console.log(paid)
+    //   const paidRevenue= paid.status === 'paid'.reduce((total,item) => total + item.price ,0)
+    //   if
+    //   const pendingRevenue= pending.status === 'pending'.reduce((total,item) => total + item.price ,0)
+    //   res.send({paidRevenue ,pendingRevenue,paid})
+    // })
 
    app.get('/salesReport',verifyToken,verifyAdmin,async(req,res)=>{
        const status=req.query.status
